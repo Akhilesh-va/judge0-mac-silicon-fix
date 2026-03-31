@@ -15,8 +15,156 @@ Code execution made simple for every business.
 
 Robust, fast, scalable, and sandboxed open-source online code execution system for humans and AI.
 
+## Run Judge0 on Apple Silicon (M1/M2/M3/M4) — Working Fix
+
+> Fully working setup for running Judge0 on Mac (Apple Silicon) using Docker + amd64 emulation.
+> Fixes common errors like `exec format error`, worker crashes, and isolate issues.
+
+### Problem
+
+Running Judge0 on Apple Silicon Macs (M1, M2, M3, M4) is not straightforward.
+
+Most developers face issues like:
+
+- `exec format error`
+- Containers exiting immediately
+- Worker not processing submissions
+- `No such file or directory @ rb_sysopen - /box/script.py`
+- Sandbox (isolate) failures
+
+This happens because Judge0 Docker images are built for `amd64`, while Apple Silicon uses ARM architecture.
+
+### Solution
+
+This setup uses:
+
+- Docker + Rosetta emulation
+- `linux/amd64` platform override
+- Proper container rebuild
+- Fix for sandbox execution issues
+
+### Prerequisites
+
+- macOS (Apple Silicon: M1/M2/M3/M4)
+- Docker Desktop installed
+- Rosetta enabled in Docker settings
+
+Enable Rosetta:
+
+1. Open Docker Desktop.
+2. Go to **Settings -> Features in Development**.
+3. Enable **Use Rosetta for x86/amd64 emulation**.
+
+### Quick Start
+
+1) Clone the repo:
+
+```bash
+git clone https://github.com/your-username/judge0-mac-silicon-fix.git
+cd judge0-mac-silicon-fix
+```
+
+2) Set platform to amd64:
+
+```bash
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+3) Clean old containers:
+
+```bash
+docker compose down -v
+docker system prune -f
+```
+
+4) Build and start:
+
+```bash
+docker compose up --build
+```
+
+### Test Judge0
+
+```bash
+curl -X POST "http://localhost:2358/submissions/?base64_encoded=false&wait=true" \
+-H "Content-Type: application/json" \
+-d '{
+  "source_code": "print(\"HELLO FROM JUDGE0\")",
+  "language_id": 71
+}'
+```
+
+Expected output:
+
+```json
+{
+  "stdout": "HELLO FROM JUDGE0\n",
+  "status": {
+    "id": 3,
+    "description": "Accepted"
+  }
+}
+```
+
+### Key Fixes Applied
+
+- Added `platform: linux/amd64` to all services in `docker-compose.yml`.
+- Enabled Rosetta emulation in Docker.
+- Performed a clean rebuild of containers.
+- Fixed file system issues affecting `/box/script.py`.
+
+### Limitations
+
+- Slower performance due to emulation.
+- Not ideal for production.
+- Sandbox security may need adjustment for local setup.
+
+Recommended:
+
+- Use this for development.
+- Deploy on VPS (`x86`) for production.
+
+### Use Cases
+
+- Build coding platforms (like LeetCode / HackerRank)
+- Online compilers
+- Code execution APIs
+- Backend integration for coding apps
+
+### Architecture
+
+```text
+Frontend -> Backend -> Judge0 API -> Worker -> Output
+```
+
+### Future Improvements
+
+- ARM-native Judge0 support
+- One-click setup script
+- Performance optimizations
+- Production-ready deployment guide
+
+### Contributing
+
+Pull requests are welcome. If you find better fixes for ARM compatibility, feel free to contribute.
+
+### Support
+
+If this helped you, star the repo and share it with others facing the same issue.
+
+### Keywords (SEO)
+
+Judge0 Mac M1 fix, Judge0 Apple Silicon, Docker amd64 Mac, Judge0 not working M1, Judge0 ARM issue, exec format error Docker Mac, Judge0 M2 M3 M4 fix
+
+### Author
+
+Built after 30+ hours of debugging Docker, architecture issues, and Judge0 setup on Apple Silicon.
+
+If you searched "Judge0 not working on M1", you are in the right place.
+
 ## Table of Contents
 
+* [Run Judge0 on Apple Silicon (M1/M2/M3/M4) — Working Fix](#run-judge0-on-apple-silicon-m1m2m3m4--working-fix)
 * [About](#about)
 * [Features](#features)
 * [Get Started](#get-started)
